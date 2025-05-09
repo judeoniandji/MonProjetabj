@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Mon Profil{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Profil principal -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="{{ current_user.profile.avatar_url or url_for('static', filename='img/default-avatar.png') }}" 
+                             class="rounded-circle me-4" width="120" height="120">
+                        <div>
+                            <h2 class="mb-1">{{ current_user.profile.full_name }}</h2>
+                            <p class="text-muted mb-2">{{ current_user.profile.title }}</p>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('main.edit_profile') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-edit me-2"></i>Modifier le profil
+                                </a>
+                                <a href="{{ url_for('main.settings') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-cog me-2"></i>Paramètres
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- À propos -->
+                    <div class="mb-4">
+                        <h4>À propos</h4>
+                        <p>{{ current_user.profile.bio or "Aucune biographie" }}</p>
+                    </div>
+
+                    <!-- Compétences -->
+                    <div class="mb-4">
+                        <h4>Compétences</h4>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for skill in current_user.profile.skills %}
+                            <span class="badge bg-primary">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Expérience -->
+                    <div class="mb-4">
+                        <h4>Expérience</h4>
+                        {% for experience in current_user.profile.experiences %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ experience.title }}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{ experience.company }}</h6>
+                                <p class="card-text">{{ experience.description }}</p>
+                                <small class="text-muted">{{ experience.start_date.strftime('%B %Y') }} - {{ experience.end_date.strftime('%B %Y') if experience.end_date else 'Présent' }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Formation -->
+                    <div>
+                        <h4>Formation</h4>
+                        {% for education in current_user.profile.education %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ education.school }}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{ education.degree }}</h6>
+                                <p class="card-text">{{ education.description }}</p>
+                                <small class="text-muted">{{ education.start_date.strftime('%B %Y') }} - {{ education.end_date.strftime('%B %Y') if education.end_date else 'Présent' }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Badges -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Badges</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for badge in current_user.profile.badges %}
+                        <div class="badge-item badge-technical">
+                            <i class="fas fa-award me-1"></i>{{ badge.name }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistiques -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Statistiques</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-briefcase me-2"></i>{{ current_user.profile.applications|length }} candidatures
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-calendar-check me-2"></i>{{ current_user.profile.events_attended|length }} événements
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-users me-2"></i>{{ current_user.profile.connections|length }} connexions
+                        </li>
+                        <li>
+                            <i class="fas fa-star me-2"></i>{{ current_user.profile.rating|default('0.0') }}/5.0
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Liens -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Liens</h5>
+                    <div class="d-flex flex-column gap-2">
+                        {% if current_user.profile.linkedin_url %}
+                        <a href="{{ current_user.profile.linkedin_url }}" class="btn btn-outline-primary" target="_blank">
+                            <i class="fab fa-linkedin me-2"></i>LinkedIn
+                        </a>
+                        {% endif %}
+                        {% if current_user.profile.github_url %}
+                        <a href="{{ current_user.profile.github_url }}" class="btn btn-outline-dark" target="_blank">
+                            <i class="fab fa-github me-2"></i>GitHub
+                        </a>
+                        {% endif %}
+                        {% if current_user.profile.portfolio_url %}
+                        <a href="{{ current_user.profile.portfolio_url }}" class="btn btn-outline-secondary" target="_blank">
+                            <i class="fas fa-globe me-2"></i>Portfolio
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

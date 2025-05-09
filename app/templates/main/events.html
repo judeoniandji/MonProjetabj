@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Événements{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1 class="mb-4">Événements</h1>
+            
+            <!-- Filtres -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="search" placeholder="Rechercher...">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="type">
+                                <option value="">Type d'événement</option>
+                                <option value="workshop">Workshop</option>
+                                <option value="conference">Conférence</option>
+                                <option value="networking">Networking</option>
+                                <option value="hackathon">Hackathon</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" name="format">
+                                <option value="">Format</option>
+                                <option value="online">En ligne</option>
+                                <option value="hybrid">Hybride</option>
+                                <option value="onsite">Sur place</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Liste des événements -->
+            {% for event in events.items %}
+            <div class="card event-card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ event.organizer.name }}</h6>
+                            <p class="card-text">{{ event.description[:200] }}...</p>
+                            <div class="mb-2">
+                                <span class="badge bg-primary me-2">{{ event.type }}</span>
+                                <span class="badge bg-secondary me-2">{{ event.format }}</span>
+                                <span class="badge bg-info">{{ event.date.strftime('%d/%m/%Y') }}</span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <a href="{{ url_for('main.event_detail', id=event.id) }}" class="btn btn-outline-primary">Voir l'événement</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Pagination -->
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if events.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('main.events', page=events.prev_num) }}">Précédent</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page in events.iter_pages() %}
+                        {% if page %}
+                            <li class="page-item {% if page == events.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('main.events', page=page) }}">{{ page }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if events.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('main.events', page=events.next_num) }}">Suivant</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Filtres rapides</h5>
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('main.events', type='workshop') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>Workshops
+                        </a>
+                        <a href="{{ url_for('main.events', type='conference') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-microphone me-2"></i>Conférences
+                        </a>
+                        <a href="{{ url_for('main.events', type='networking') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users me-2"></i>Networking
+                        </a>
+                        <a href="{{ url_for('main.events', type='hackathon') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-code me-2"></i>Hackathons
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Calendrier</h5>
+                    <p class="card-text">Consultez tous les événements à venir dans notre calendrier.</p>
+                    <a href="#" class="btn btn-outline-primary">Voir le calendrier</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

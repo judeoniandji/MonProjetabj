@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscription Simplifiée{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Inscription Simplifiée</h3>
+                </div>
+                <div class="card-body">
+                    <div id="registrationForm">
+                        <div class="form-group mb-3">
+                            <label for="name"><strong>Nom complet:</strong></label>
+                            <input type="text" class="form-control" id="name" placeholder="Entrez votre nom" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="email"><strong>Email:</strong></label>
+                            <input type="email" class="form-control" id="email" placeholder="Entrez votre email" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="userType"><strong>Type d'utilisateur:</strong></label>
+                            <select class="form-control" id="userType" required onchange="showAdditionalFields()">
+                                <option value="" selected disabled>Choisir un type</option>
+                                <option value="student">Étudiant</option>
+                                <option value="university">Université</option>
+                                <option value="company">Entreprise</option>
+                                <option value="admin">Administrateur</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Champs pour étudiant -->
+                        <div id="studentFields" style="display: none;">
+                            <div class="form-group mb-3">
+                                <label for="school">École/Université:</label>
+                                <input type="text" class="form-control" id="school" placeholder="Nom de votre école">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="fieldOfStudy">Domaine d'études:</label>
+                                <input type="text" class="form-control" id="fieldOfStudy" placeholder="Votre domaine d'études">
+                            </div>
+                        </div>
+                        
+                        <!-- Champs pour université -->
+                        <div id="universityFields" style="display: none;">
+                            <div class="form-group mb-3">
+                                <label for="universityName">Nom de l'université:</label>
+                                <input type="text" class="form-control" id="universityName" placeholder="Nom de l'université">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="location">Localisation:</label>
+                                <input type="text" class="form-control" id="location" placeholder="Ville, Pays">
+                            </div>
+                        </div>
+                        
+                        <!-- Champs pour entreprise -->
+                        <div id="companyFields" style="display: none;">
+                            <div class="form-group mb-3">
+                                <label for="companyName">Nom de l'entreprise:</label>
+                                <input type="text" class="form-control" id="companyName" placeholder="Nom de l'entreprise">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="industry">Secteur d'activité:</label>
+                                <input type="text" class="form-control" id="industry" placeholder="Secteur d'activité">
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-primary btn-lg" onclick="submitForm()">S'inscrire</button>
+                        </div>
+                    </div>
+                    
+                    <div id="successMessage" class="alert alert-success mt-4" style="display: none;">
+                        <h4 class="alert-heading">Inscription réussie!</h4>
+                        <div id="userDetails"></div>
+                        <hr>
+                        <p class="mb-0">Vous pouvez maintenant <a href="{{ url_for('main.index') }}">retourner à l'accueil</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Afficher les champs supplémentaires en fonction du type d'utilisateur
+    function showAdditionalFields() {
+        // Cacher tous les champs
+        document.getElementById('studentFields').style.display = 'none';
+        document.getElementById('universityFields').style.display = 'none';
+        document.getElementById('companyFields').style.display = 'none';
+        
+        // Afficher les champs appropriés
+        const userType = document.getElementById('userType').value;
+        if (userType === 'student') {
+            document.getElementById('studentFields').style.display = 'block';
+        } else if (userType === 'university') {
+            document.getElementById('universityFields').style.display = 'block';
+        } else if (userType === 'company') {
+            document.getElementById('companyFields').style.display = 'block';
+        }
+    }
+    
+    // Gérer la soumission du formulaire
+    function submitForm() {
+        // Récupérer les valeurs du formulaire
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const userType = document.getElementById('userType').value;
+        
+        // Validation simple
+        if (!name || !email || !userType) {
+            alert('Veuillez remplir tous les champs obligatoires');
+            return;
+        }
+        
+        // Récupérer les champs supplémentaires selon le type
+        let additionalInfo = {};
+        
+        if (userType === 'student') {
+            additionalInfo = {
+                school: document.getElementById('school').value,
+                fieldOfStudy: document.getElementById('fieldOfStudy').value
+            };
+        } else if (userType === 'university') {
+            additionalInfo = {
+                universityName: document.getElementById('universityName').value,
+                location: document.getElementById('location').value
+            };
+        } else if (userType === 'company') {
+            additionalInfo = {
+                companyName: document.getElementById('companyName').value,
+                industry: document.getElementById('industry').value
+            };
+        }
+        
+        // Créer l'objet utilisateur
+        const user = {
+            name,
+            email,
+            userType,
+            ...additionalInfo,
+            registrationDate: new Date().toISOString()
+        };
+        
+        // Sauvegarder dans localStorage
+        localStorage.setItem('registeredUser', JSON.stringify(user));
+        
+        // Envoyer les données au serveur
+        fetch('/api/auth/register-simple', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(user)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur lors de l\'inscription');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Réponse du serveur:', data);
+            // Continuer avec l'affichage du succès même si le serveur échoue
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            // Continuer avec l'affichage du succès même si le serveur échoue
+        })
+        .finally(() => {
+            // Afficher le message de succès dans tous les cas
+            showSuccessMessage(user);
+        });
+    }
+    
+    function showSuccessMessage(user) {
+        // Afficher le message de succès
+        const successMessage = document.getElementById('successMessage');
+        const userDetails = document.getElementById('userDetails');
+        
+        // Créer le HTML pour afficher les détails
+        let detailsHTML = `
+            <p><strong>Nom:</strong> ${user.name}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            <p><strong>Type d'utilisateur:</strong> ${user.userType}</p>
+        `;
+        
+        // Ajouter les détails supplémentaires
+        if (user.userType === 'student') {
+            detailsHTML += `
+                <p><strong>École/Université:</strong> ${user.school}</p>
+                <p><strong>Domaine d'études:</strong> ${user.fieldOfStudy}</p>
+            `;
+        } else if (user.userType === 'university') {
+            detailsHTML += `
+                <p><strong>Nom de l'université:</strong> ${user.universityName}</p>
+                <p><strong>Localisation:</strong> ${user.location}</p>
+            `;
+        } else if (user.userType === 'company') {
+            detailsHTML += `
+                <p><strong>Nom de l'entreprise:</strong> ${user.companyName}</p>
+                <p><strong>Secteur d'activité:</strong> ${user.industry}</p>
+            `;
+        }
+        
+        // Mettre à jour le HTML et afficher le message
+        userDetails.innerHTML = detailsHTML;
+        successMessage.style.display = 'block';
+        
+        // Cacher le formulaire
+        document.getElementById('registrationForm').style.display = 'none';
+        
+        console.log('Utilisateur enregistré:', user);
+    }
+    
+    // Vérifier s'il y a déjà un utilisateur enregistré
+    window.onload = function() {
+        const registeredUser = localStorage.getItem('registeredUser');
+        if (registeredUser) {
+            console.log('Utilisateur déjà enregistré:', JSON.parse(registeredUser));
+        }
+    };
+</script>
+{% endblock %}

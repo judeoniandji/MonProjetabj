@@ -1,0 +1,228 @@
+/* Variables globales */
+:root {
+    --primary-color: #4a90e2;
+    --secondary-color: #f39c12;
+    --success-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+}
+
+/* Custom styles for CampusConnect */
+
+/* General styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Navbar styles */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* Card styles */
+.card {
+    border: none;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Button styles */
+.btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+    transform: translateY(-2px);
+}
+
+/* Form styles */
+.form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Hero section */
+.bg-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+/* Features section */
+.feature-card {
+    padding: 2rem;
+    text-align: center;
+}
+
+.feature-card i {
+    font-size: 2.5rem;
+    color: #0d6efd;
+    margin-bottom: 1rem;
+}
+
+/* Statistics section */
+.stat-number {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+/* Footer */
+.footer {
+    background-color: #f8f9fa;
+    padding: 1rem 0;
+    margin-top: auto;
+}
+
+/* Auth pages */
+.auth-card {
+    max-width: 400px;
+    margin: 2rem auto;
+}
+
+.auth-card .card-body {
+    padding: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+    }
+}
+
+/* Offres d'emploi */
+.job-card {
+    border-left: 4px solid var(--primary-color);
+}
+
+.job-card.premium {
+    border-left-color: var(--secondary-color);
+}
+
+/* Événements */
+.event-card {
+    border-left: 4px solid var(--success-color);
+}
+
+.event-card.premium {
+    border-left-color: var(--secondary-color);
+}
+
+/* Messages */
+.message-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.message-item {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 10px;
+}
+
+.message-sent {
+    background-color: var(--primary-color);
+    color: white;
+    margin-left: 20%;
+}
+
+.message-received {
+    background-color: var(--light-color);
+    margin-right: 20%;
+}
+
+/* Badges */
+.badge-item {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 15px;
+    margin: 2px;
+    font-size: 0.9rem;
+}
+
+.badge-technical {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.badge-soft {
+    background-color: var(--success-color);
+    color: white;
+}
+
+/* Profil */
+.profile-header {
+    background-color: var(--light-color);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Notifications */
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    padding: 3px 6px;
+    border-radius: 50%;
+    background-color: var(--danger-color);
+    color: white;
+    font-size: 0.7rem;
+}

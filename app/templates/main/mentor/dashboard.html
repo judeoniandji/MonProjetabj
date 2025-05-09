@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord mentor{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Étudiants</h5>
+                <p class="card-text display-4">{{ students_count }}</p>
+                <a href="{{ url_for('main.students') }}" class="text-white">Gérer les étudiants →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Sessions</h5>
+                <p class="card-text display-4">{{ sessions_count }}</p>
+                <a href="{{ url_for('main.sessions') }}" class="text-white">Voir les sessions →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Sessions à venir</h5>
+                <p class="card-text display-4">{{ upcoming_sessions_count }}</p>
+                <a href="{{ url_for('main.sessions') }}" class="text-white">Voir le planning →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Messages non lus</h5>
+                <p class="card-text display-4">{{ unread_messages_count }}</p>
+                <a href="{{ url_for('main.messages') }}" class="text-white">Voir les messages →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Sessions à venir</h5>
+            </div>
+            <div class="card-body">
+                {% if upcoming_sessions %}
+                    <div class="list-group">
+                        {% for session in upcoming_sessions %}
+                            <a href="{{ url_for('main.session_details', session_id=session.id) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ session.student.profile.full_name }}</h6>
+                                    <small>{{ session.start_time.strftime('%d/%m/%Y %H:%M') }}</small>
+                                </div>
+                                <p class="mb-1">{{ session.topic }}</p>
+                                <small>Type: {{ session.session_type }}</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Aucune session à venir</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Étudiants récents</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_students %}
+                    <div class="list-group">
+                        {% for student in recent_students %}
+                            <a href="{{ url_for('main.student_details', student_id=student.id) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ student.profile.full_name }}</h6>
+                                    <small>{{ student.created_at.strftime('%d/%m/%Y') }}</small>
+                                </div>
+                                <p class="mb-1">{{ student.profile.school.name }}</p>
+                                <small>Niveau: {{ student.profile.level }}</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Aucun étudiant récent</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

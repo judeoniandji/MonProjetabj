@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord étudiant{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Candidatures</h5>
+                <p class="card-text display-4">{{ applications_count }}</p>
+                <a href="{{ url_for('main.applications') }}" class="text-white">Voir toutes les candidatures →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Sessions de mentorat</h5>
+                <p class="card-text display-4">{{ mentoring_sessions_count }}</p>
+                <a href="{{ url_for('main.mentoring_sessions') }}" class="text-white">Voir les sessions →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Événements</h5>
+                <p class="card-text display-4">{{ events_count }}</p>
+                <a href="{{ url_for('main.events') }}" class="text-white">Voir les événements →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Messages non lus</h5>
+                <p class="card-text display-4">{{ unread_messages_count }}</p>
+                <a href="{{ url_for('main.messages') }}" class="text-white">Voir les messages →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Offres d'emploi récentes</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_jobs %}
+                    <div class="list-group">
+                        {% for job in recent_jobs %}
+                            <a href="{{ url_for('main.job_details', job_id=job.id) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ job.title }}</h6>
+                                    <small>{{ job.created_at.strftime('%d/%m/%Y') }}</small>
+                                </div>
+                                <p class="mb-1">{{ job.company.name }}</p>
+                                <small>{{ job.location }}</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Aucune offre d'emploi récente</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Événements à venir</h5>
+            </div>
+            <div class="card-body">
+                {% if upcoming_events %}
+                    <div class="list-group">
+                        {% for event in upcoming_events %}
+                            <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ event.title }}</h6>
+                                    <small>{{ event.start_time.strftime('%d/%m/%Y') }}</small>
+                                </div>
+                                <p class="mb-1">{{ event.description[:100] }}...</p>
+                                <small>{{ event.location }}</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Aucun événement à venir</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

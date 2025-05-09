@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}Profil - CampusConnect{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Profile Header -->
+        <div class="col-12 mb-4">
+            <div class="card profile-header">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <img src="{{ current_user.profile.avatar_url or url_for('static', filename='img/default-avatar.png') }}"
+                                 class="profile-avatar" alt="Photo de profil">
+                        </div>
+                        <div class="col">
+                            <h1 class="h2 mb-2">{{ current_user.profile.full_name }}</h1>
+                            <p class="text-muted mb-2">
+                                {% if current_user.user_type == 'student' %}
+                                    <i class="fas fa-graduation-cap"></i> Étudiant à {{ current_user.profile.school }}
+                                {% elif current_user.user_type == 'company' %}
+                                    <i class="fas fa-building"></i> {{ current_user.profile.company_name }}
+                                {% else %}
+                                    <i class="fas fa-user-tie"></i> Mentor
+                                {% endif %}
+                            </p>
+                            <div class="mb-3">
+                                {% if current_user.is_premium %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-star"></i> Premium
+                                    </span>
+                                {% endif %}
+                                {% for badge in current_user.badges %}
+                                    <span class="badge bg-primary">
+                                        <i class="{{ badge.icon }}"></i> {{ badge.name }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                            <div>
+                                {% if current_user.profile.linkedin_url %}
+                                    <a href="{{ current_user.profile.linkedin_url }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                        <i class="fab fa-linkedin"></i> LinkedIn
+                                    </a>
+                                {% endif %}
+                                {% if current_user.profile.cv_url %}
+                                    <a href="{{ current_user.profile.cv_url }}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-file-pdf"></i> CV
+                                    </a>
+                                {% endif %}
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                                    <i class="fas fa-edit"></i> Modifier le profil
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-8">
+            <!-- About -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title h5">À propos</h3>
+                    <p>{{ current_user.profile.bio or 'Aucune biographie ajoutée.' }}</p>
+                </div>
+            </div>
+
+            <!-- Skills -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="card-title h5">Compétences</h3>
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addSkillModal">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </button>
+                    </div>
+                    <div class="skill-list">
+                        {% for skill in current_user.skills %}
+                            <div class="skill-item mb-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">{{ skill.name }}</h6>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-thumbs-up"></i> {{ skill.endorsements_count }} recommandations
+                                        </div>
+                                    </div>
+                                    <div class="skill-level">
+                                        {% for i in range(5) %}
+                                            <i class="fas fa-circle {% if i < skill.level %}text-primary{% else %}text-muted{% endif %}"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experience or Education -->
+            {% if current_user.user_type == 'student' %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="card-title h5">Formation</h3>
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEducationModal">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </button>
+                    </div>
+                    <div class="timeline">
+                        {% for education in educations %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h6>{{ education.school }}</h6>
+                                <p class="text-muted">{{ education.degree }}</p>
+                                <small>{{ education.start_year }} - {{ education.end_year }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Statistics -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title h5">Statistiques</h3>
+                    <div class="row text-center">
+                        {% if current_user.user_type == 'student' %}
+                        <div class="col-6 mb-3">
+                            <h4 class="h2 mb-0">{{ stats.applications_count }}</h4>
+                            <small class="text-muted">Candidatures</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h4 class="h2 mb-0">{{ stats.events_attended }}</h4>
+                            <small class="text-muted">Événements</small>
+                        </div>
+                        {% elif current_user.user_type == 'company' %}
+                        <div class="col-6 mb-3">
+                            <h4 class="h2 mb-0">{{ stats.active_jobs }}</h4>
+                            <small class="text-muted">Offres actives</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h4 class="h2 mb-0">{{ stats.total_applications }}</h4>
+                            <small class="text-muted">Candidatures reçues</small>
+                        </div>
+                        {% endif %}
+                        <div class="col-6">
+                            <h4 class="h2 mb-0">{{ stats.profile_views }}</h4>
+                            <small class="text-muted">Vues du profil</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="h2 mb-0">{{ stats.connections }}</h4>
+                            <small class="text-muted">Connexions</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title h5">Activité récente</h3>
+                    <div class="activity-feed">
+                        {% for activity in activities %}
+                        <div class="activity-item">
+                            <i class="{{ activity.icon }} text-primary"></i>
+                            <div class="activity-content">
+                                <div class="activity-text">{{ activity.description }}</div>
+                                <small class="text-muted">{{ activity.time_ago }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modifier le profil</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('profile.update') }}" method="POST" enctype="multipart/form-data" data-ajax="true">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Photo de profil</label>
+                        <input type="file" class="form-control" name="avatar" accept="image/*">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nom complet</label>
+                        <input type="text" class="form-control" name="full_name" value="{{ current_user.profile.full_name }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Biographie</label>
+                        <textarea class="form-control" name="bio" rows="4">{{ current_user.profile.bio }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">LinkedIn URL</label>
+                        <input type="url" class="form-control" name="linkedin_url" value="{{ current_user.profile.linkedin_url }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Skill Modal -->
+<div class="modal fade" id="addSkillModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajouter une compétence</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('profile.add_skill') }}" method="POST" data-ajax="true">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Compétence</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Niveau</label>
+                        <select class="form-select" name="level" required>
+                            <option value="1">Débutant</option>
+                            <option value="2">Intermédiaire</option>
+                            <option value="3">Avancé</option>
+                            <option value="4">Expert</option>
+                            <option value="5">Maître</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle form submissions
+    document.querySelectorAll('form[data-ajax="true"]').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            try {
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    body: formData
+                });
+                
+                const result = await response.json();
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert(result.error || 'Une erreur est survenue');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Une erreur est survenue');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscription Simplifiée{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Inscription Simplifiée</h3>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" action="{{ url_for('auth.simple_register') }}">
+                        <div class="form-group mb-3">
+                            <label for="name"><strong>Nom complet:</strong></label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Entrez votre nom" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="email"><strong>Email:</strong></label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Entrez votre email" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="user_type"><strong>Type d'utilisateur:</strong></label>
+                            <select class="form-control" id="user_type" name="user_type" required onchange="showAdditionalFields()">
+                                <option value="">Sélectionnez un type</option>
+                                <option value="student">Étudiant</option>
+                                <option value="university">Université</option>
+                                <option value="company">Entreprise</option>
+                                <option value="admin">Administrateur</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Champs supplémentaires pour les étudiants -->
+                        <div id="student-fields" style="display: none;">
+                            <div class="form-group mb-3">
+                                <label for="school">École/Université:</label>
+                                <input type="text" class="form-control" id="school" name="school" placeholder="Nom de votre école">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="field">Domaine d'études:</label>
+                                <input type="text" class="form-control" id="field" name="field" placeholder="Votre domaine d'études">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="graduation_year">Année de diplôme:</label>
+                                <input type="number" class="form-control" id="graduation_year" name="graduation_year" placeholder="Année de diplôme">
+                            </div>
+                        </div>
+                        
+                        <!-- Champs supplémentaires pour les universités -->
+                        <div id="university-fields" style="display: none;">
+                            <div class="form-group mb-3">
+                                <label for="university_name">Nom de l'université:</label>
+                                <input type="text" class="form-control" id="university_name" name="university_name" placeholder="Nom de l'université">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="location">Localisation:</label>
+                                <input type="text" class="form-control" id="location" name="location" placeholder="Ville, Pays">
+                            </div>
+                        </div>
+                        
+                        <!-- Champs supplémentaires pour les entreprises -->
+                        <div id="company-fields" style="display: none;">
+                            <div class="form-group mb-3">
+                                <label for="company_name">Nom de l'entreprise:</label>
+                                <input type="text" class="form-control" id="company_name" name="company_name" placeholder="Nom de l'entreprise">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="industry">Secteur d'activité:</label>
+                                <input type="text" class="form-control" id="industry" name="industry" placeholder="Secteur d'activité">
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="company_size">Taille de l'entreprise:</label>
+                                <select class="form-control" id="company_size" name="company_size">
+                                    <option value="1-10">1-10 employés</option>
+                                    <option value="11-50">11-50 employés</option>
+                                    <option value="51-200">51-200 employés</option>
+                                    <option value="201-500">201-500 employés</option>
+                                    <option value="501+">501+ employés</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">S'inscrire</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showAdditionalFields() {
+        // Cacher tous les champs supplémentaires
+        document.getElementById('student-fields').style.display = 'none';
+        document.getElementById('university-fields').style.display = 'none';
+        document.getElementById('company-fields').style.display = 'none';
+        
+        // Afficher les champs en fonction du type d'utilisateur sélectionné
+        const userType = document.getElementById('user_type').value;
+        
+        if (userType === 'student') {
+            document.getElementById('student-fields').style.display = 'block';
+        } else if (userType === 'university') {
+            document.getElementById('university-fields').style.display = 'block';
+        } else if (userType === 'company') {
+            document.getElementById('company-fields').style.display = 'block';
+        }
+    }
+</script>
+{% endblock %}

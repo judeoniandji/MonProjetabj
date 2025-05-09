@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-4">
+            <!-- Liste des conversations -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Conversations</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for conversation in conversations %}
+                    <a href="{{ url_for('main.messages', conversation_id=conversation.id) }}" 
+                       class="list-group-item list-group-item-action {% if conversation.id == current_conversation.id %}active{% endif %}">
+                        <div class="d-flex align-items-center">
+                            <img src="{{ conversation.other_user.profile.avatar_url or url_for('static', filename='img/default-avatar.png') }}" 
+                                 class="rounded-circle me-3" width="40" height="40">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0">{{ conversation.other_user.profile.full_name }}</h6>
+                                <small class="text-muted">{{ conversation.last_message.content[:50] }}...</small>
+                            </div>
+                            <small class="text-muted">{{ conversation.last_message.created_at.strftime('%H:%M') }}</small>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            {% if current_conversation %}
+            <!-- En-tête de la conversation -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ current_conversation.other_user.profile.avatar_url or url_for('static', filename='img/default-avatar.png') }}" 
+                             class="rounded-circle me-3" width="50" height="50">
+                        <div>
+                            <h5 class="mb-0">{{ current_conversation.other_user.profile.full_name }}</h5>
+                            <small class="text-muted">{{ current_conversation.other_user.profile.title }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="card mb-3">
+                <div class="card-body message-list" style="height: 400px; overflow-y: auto;">
+                    {% for message in current_conversation.messages %}
+                    <div class="message-item {% if message.sender_id == current_user.id %}message-sent{% else %}message-received{% endif %}">
+                        <div class="message-content">
+                            {{ message.content }}
+                        </div>
+                        <small class="text-muted">{{ message.created_at.strftime('%H:%M') }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Formulaire d'envoi -->
+            <form method="POST" action="{{ url_for('main.send_message', conversation_id=current_conversation.id) }}">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="content" placeholder="Écrivez votre message...">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+            {% else %}
+            <!-- Message quand aucune conversation n'est sélectionnée -->
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                    <h5>Sélectionnez une conversation</h5>
+                    <p class="text-muted">Choisissez une conversation dans la liste à gauche pour commencer à discuter.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Scroll to bottom of message list
+document.addEventListener('DOMContentLoaded', function() {
+    const messageList = document.querySelector('.message-list');
+    if (messageList) {
+        messageList.scrollTop = messageList.scrollHeight;
+    }
+});
+</script>
+{% endblock %} 

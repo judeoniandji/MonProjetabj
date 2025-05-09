@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord entreprise{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Offres d'emploi</h5>
+                <p class="card-text display-4">{{ job_offers_count }}</p>
+                <a href="{{ url_for('main.job_offers') }}" class="text-white">Gérer les offres →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Candidatures</h5>
+                <p class="card-text display-4">{{ applications_count }}</p>
+                <a href="{{ url_for('main.applications') }}" class="text-white">Voir les candidatures →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Stagiaires actuels</h5>
+                <p class="card-text display-4">{{ current_interns_count }}</p>
+                <a href="{{ url_for('main.interns') }}" class="text-white">Gérer les stagiaires →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Messages non lus</h5>
+                <p class="card-text display-4">{{ unread_messages_count }}</p>
+                <a href="{{ url_for('main.messages') }}" class="text-white">Voir les messages →</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Candidatures récentes</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_applications %}
+                    <div class="list-group">
+                        {% for application in recent_applications %}
+                            <a href="{{ url_for('main.application_details', application_id=application.id) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ application.job.title }}</h6>
+                                    <small>{{ application.created_at.strftime('%d/%m/%Y') }}</small>
+                                </div>
+                                <p class="mb-1">{{ application.student.profile.full_name }}</p>
+                                <small>Statut: {{ application.status }}</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Aucune candidature récente</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Stagiaires actuels</h5>
+            </div>
+            <div class="card-body">
+                {% if current_interns %}
+                    <div class="list-group">
+                        {% for intern in current_interns %}
+                            <a href="{{ url_for('main.intern_details', intern_id=intern.id) }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ intern.profile.full_name }}</h6>
+                                    <small>{{ intern.internship_start_date.strftime('%d/%m/%Y') }}</small>
+                                </div>
+                                <p class="mb-1">{{ intern.internship_position }}</p>
+                                <small>Département: {{ intern.internship_department }}</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Aucun stagiaire actuel</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

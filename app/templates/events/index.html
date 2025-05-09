@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}Événements - CampusConnect{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2">Événements</h1>
+        {% if current_user.user_type in ['company', 'admin'] %}
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
+            <i class="fas fa-plus"></i> Créer un événement
+        </button>
+        {% endif %}
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="filterForm" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Type d'événement</label>
+                    <select class="form-select" name="event_type">
+                        <option value="">Tous</option>
+                        <option value="workshop">Workshop</option>
+                        <option value="conference">Conférence</option>
+                        <option value="networking">Networking</option>
+                        <option value="career_fair">Salon de l'emploi</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Date</label>
+                    <select class="form-select" name="date_filter">
+                        <option value="">Toutes les dates</option>
+                        <option value="today">Aujourd'hui</option>
+                        <option value="week">Cette semaine</option>
+                        <option value="month">Ce mois</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Format</label>
+                    <select class="form-select" name="format">
+                        <option value="">Tous</option>
+                        <option value="online">En ligne</option>
+                        <option value="in_person">Présentiel</option>
+                        <option value="hybrid">Hybride</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter"></i> Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="eventsContainer">
+        {% for event in events %}
+        <div class="col">
+            <div class="card h-100">
+                {% if event.image_url %}
+                <img src="{{ event.image_url }}" class="card-img-top" alt="{{ event.title }}">
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title">{{ event.title }}</h5>
+                        {% if event.is_premium %}
+                        <span class="badge bg-warning">
+                            <i class="fas fa-star"></i> Premium
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="card-text">{{ event.description[:150] }}...</p>
+                    
+                    <div class="mb-3">
+                        <div class="text-muted mb-1">
+                            <i class="fas fa-calendar"></i> {{ event.date.strftime('%d/%m/%Y %H:%M') }}
+                        </div>
+                        <div class="text-muted mb-1">
+                            <i class="fas fa-map-marker-alt"></i> 
+                            {% if event.format == 'online' %}
+                            En ligne
+                            {% else %}
+                            {{ event.location }}
+                            {% endif %}
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-users"></i> {{ event.registered_count }} inscrits
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">{{ event.event_type }}</span>
+                        {% if event.is_registered %}
+                        <button class="btn btn-outline-danger btn-sm" onclick="unregisterFromEvent({{ event.id }})">
+                            Se désinscrire
+                        </button>
+                        {% else %}
+                        <button class="btn btn-primary btn-sm" onclick="registerForEvent({{ event.id }})">
+                            S'inscrire
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Create Event Modal -->
+<div class="modal fade" id="createEventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Créer un événement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="createEventForm">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Titre</label>
+                            <input type="text" class="form-control" name="title" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="description" rows="4" required></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date</label>
+                            <input type="datetime-local" class="form-control" name="date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Type d'événement</label>
+                            <select class="form-select" name="event_type" required>
+                                <option value="workshop">Workshop</option>
+                                <option value="conference">Conférence</option>
+                                <option value="networking">Networking</option>
+                                <option value="career_fair">Salon de l'emploi</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Format</label>
+                            <select class="form-select" name="format" required>
+                                <option value="online">En ligne</option>
+                                <option value="in_person">Présentiel</option>
+                                <option value="hybrid">Hybride</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Capacité maximale</label>
+                            <input type="number" class="form-control" name="capacity" min="1">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Lieu</label>
+                            <input type="text" class="form-control" name="location">
+                            <small class="text-muted">Pour les événements en ligne, indiquez le lien de connexion</small>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Image</label>
+                            <input type="file" class="form-control" name="image" accept="image/*">
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_premium" id="isPremium">
+                                <label class="form-check-label" for="isPremium">
+                                    Événement Premium
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter form handling
+    const filterForm = document.getElementById('filterForm');
+    filterForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(filterForm);
+        const params = new URLSearchParams(formData);
+        
+        try {
+            const response = await fetch(`/api/events/search?${params}`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                updateEventsGrid(data.events);
+            } else {
+                alert(data.error || 'Une erreur est survenue');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Une erreur est survenue');
+        }
+    });
+
+    // Create event form handling
+    const createEventForm = document.getElementById('createEventForm');
+    createEventForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(createEventForm);
+        try {
+            const response = await fetch('/api/events/create', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert(result.error || 'Une erreur est survenue');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Une erreur est survenue');
+        }
+    });
+});
+
+// Event registration
+async function registerForEvent(eventId) {
+    try {
+        const response = await fetch(`/api/events/${eventId}/register`, {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert(result.error || 'Une erreur est survenue');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Une erreur est survenue');
+    }
+}
+
+// Event unregistration
+async function unregisterFromEvent(eventId) {
+    if (!confirm('Êtes-vous sûr de vouloir vous désinscrire ?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/events/${eventId}/unregister`, {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        if (response.ok) {
+            location.reload();
+        } else {
+            alert(result.error || 'Une erreur est survenue');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Une erreur est survenue');
+    }
+}
+
+// Update events grid
+function updateEventsGrid(events) {
+    const container = document.getElementById('eventsContainer');
+    container.innerHTML = events.map(event => `
+        <div class="col">
+            <div class="card h-100">
+                ${event.image_url ? `<img src="${event.image_url}" class="card-img-top" alt="${event.title}">` : ''}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title">${event.title}</h5>
+                        ${event.is_premium ? `
+                            <span class="badge bg-warning">
+                                <i class="fas fa-star"></i> Premium
+                            </span>
+                        ` : ''}
+                    </div>
+                    <p class="card-text">${event.description.substring(0, 150)}...</p>
+                    
+                    <div class="mb-3">
+                        <div class="text-muted mb-1">
+                            <i class="fas fa-calendar"></i> ${event.date}
+                        </div>
+                        <div class="text-muted mb-1">
+                            <i class="fas fa-map-marker-alt"></i> 
+                            ${event.format === 'online' ? 'En ligne' : event.location}
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-users"></i> ${event.registered_count} inscrits
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">${event.event_type}</span>
+                        ${event.is_registered ? `
+                            <button class="btn btn-outline-danger btn-sm" onclick="unregisterFromEvent(${event.id})">
+                                Se désinscrire
+                            </button>
+                        ` : `
+                            <button class="btn btn-primary btn-sm" onclick="registerForEvent(${event.id})">
+                                S'inscrire
+                            </button>
+                        `}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+</script>
+{% endblock %}

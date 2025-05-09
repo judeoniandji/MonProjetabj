@@ -1,0 +1,16 @@
+{
+  "name": "campusconnect",
+  "version": "1.0.0",
+  "description": "Application de mise en relation étudiants-entreprises",
+  "scripts": {
+    "start-backend": "cd backend && .\\venv\\Scripts\\python run.py",
+    "start-frontend": "cd frontend && npm start",
+    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
+    "install-deps": "cd frontend && npm install && cd ../backend && pip install -r requirements.txt",
+    "build": "cd frontend && npm run build",
+    "test": "cd frontend && npm test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}

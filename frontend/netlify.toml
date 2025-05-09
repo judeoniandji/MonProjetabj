@@ -1,0 +1,15 @@
+[build]
+  publish = "build"
+  command = "npm run build"
+
+[build.environment]
+  REACT_APP_API_URL = "/.netlify/functions/api"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Configuration pour les fonctions serverless (optionnel)
+[functions]
+  directory = "../netlify/functions"
